@@ -6,9 +6,10 @@
     
     /* --------------------- ONLY EDIT THE VALUES BELOW THIS LINE --------------------- */
     
-    private $host = "localhost";      // IP or hostname of your server.
-    private $username = "username";   // Database username.
-    private $password = "password";   // Database password.
+    private $host = "localhost";      // IP or hostname of your database server.
+    private $port = "3306";           // Port of your database server.
+    private $username = "trinity";    // Database username.
+    private $password = "trinity";    // Database password.
     private $dbname = "auth";         // Database name (i.e. "auth").
     
     /* --------------------- DO NOT EDIT ANYTHING BELOW THIS LINE --------------------- */
@@ -19,15 +20,16 @@
       try {
         
         // Establish a new connection to the database.
-        $connection = new PDO("mysql:host=$this->host;dbname=$this->dbname", $this->username, $this->password);
-        
-        // Set the PDO error mode to Exception.
-        $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $connection = new PDO("mysql:host=$this->host;port=$this->port;dbname=$this->dbname", $this->username, $this->password,
+        array(
+          PDO::ATTR_TIMEOUT => 5, // Timeout is 5 seconds
+          PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION // Set PDO error mode to Exception.
+        ));
         
         $this->conn = $connection;
       }
       catch (PDOException $e) {
-        echo "Connection failed: " . $e->getMessage();
+        error_log("Connection failed: " . $e->getMessage());
       }
     }
     
@@ -126,6 +128,10 @@
 
       // done - this is what you put in the account table!
       return array($salt, $verifier);
+    }
+    
+    public function isOpen() {
+    	return ($this->conn != null);
     }
     
     // Close the database connection.

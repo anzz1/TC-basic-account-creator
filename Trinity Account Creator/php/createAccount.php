@@ -4,6 +4,11 @@
 
   $db = new db();
   
+  if (!$db->isOpen()) {
+    echo "3"; // Connection failed
+    return;
+  }
+  
   // Get POST data and validate.
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = validateInput($_POST['username']);
@@ -63,11 +68,11 @@
     
   }
   catch(PDOException $e) {
-    echo "3"; // Update status message with unknown error occurred.
+    echo "4"; // Update status message with unknown error occurred.
     error_log("PDO Database error occurred: " . $e->getMessage());
   }
   catch (Exception $e) {
-    echo "3"; // Update status message with unknown error occurred.
+    echo "4"; // Update status message with unknown error occurred.
     error_log("Unknown error occurred: " . $e->getMessage());
   }
   

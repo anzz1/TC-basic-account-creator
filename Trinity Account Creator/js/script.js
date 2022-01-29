@@ -23,26 +23,36 @@ function submitForm() {
 
   // Create a callback function.
   xhr.onreadystatechange = function() {
-    if (xhr.readyState == 4 && xhr.status == 200) {
-      // Transaction was successful.
-      if (xhr.responseText == '0') {
-        // Reset the form first.
-        document.getElementById('accountForm').reset();
+    if (xhr.readyState == 4) {
+      if (xhr.status == 200) {
+        // Transaction was successful.
+        if (xhr.responseText == '0') {
+          // Reset the form first.
+          document.getElementById('accountForm').reset();
 
-        // Update the status message.
+          // Update the status message.
+          document.getElementById('statusMessage').value =
+            'Account created successfully!';
+          document.getElementById('statusMessage').style.color = 'green';
+        } else if (xhr.responseText == '1') {
+          document.getElementById('statusMessage').value = 'Email is invalid.';
+          document.getElementById('statusMessage').style.color = 'yellow';
+        } else if (xhr.responseText == '2') {
+          document.getElementById('statusMessage').value =
+            'Account already exists.';
+          document.getElementById('statusMessage').style.color = 'red';
+        } else if (xhr.responseText == '3') {
+          document.getElementById('statusMessage').value =
+            'Connection failed.';
+          document.getElementById('statusMessage').style.color = 'red';
+        } else {
+          document.getElementById('statusMessage').value =
+            'Unknown error occurred.';
+          document.getElementById('statusMessage').style.color = 'red';
+        }
+      } else {
         document.getElementById('statusMessage').value =
-          'Account created successfully!';
-        document.getElementById('statusMessage').style.color = 'green';
-      } else if (xhr.responseText == '1') {
-        document.getElementById('statusMessage').value = 'Email is invalid.';
-        document.getElementById('statusMessage').style.color = 'yellow';
-      } else if (xhr.responseText == '2') {
-        document.getElementById('statusMessage').value =
-          'Account already exists.';
-        document.getElementById('statusMessage').style.color = 'red';
-      } else if (xhr.responseText == '3') {
-        document.getElementById('statusMessage').value =
-          'Unknown error occurred.<br>Please try again.';
+          'Unknown error occurred.';
         document.getElementById('statusMessage').style.color = 'red';
       }
     }
@@ -59,3 +69,6 @@ $('#accountForm').submit(function(event) {
   // Cancel the form submission, so we can use AJAX instead.
   event.preventDefault();
 });
+
+// Reset status message on page reload
+document.getElementById('statusMessage').value = '';
