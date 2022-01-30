@@ -31,28 +31,41 @@ function submitForm() {
           document.getElementById('accountForm').reset();
 
           // Update the status message.
-          document.getElementById('statusMessage').value =
-            'Account created successfully!';
+          document.getElementById('statusMessage').value = 'Account created successfully!';
           document.getElementById('statusMessage').style.color = 'green';
         } else if (xhr.responseText == '1') {
-          document.getElementById('statusMessage').value = 'Email is invalid.';
-          document.getElementById('statusMessage').style.color = 'yellow';
+          document.getElementById('statusMessage').value = 'Account already exists.';
+          document.getElementById('statusMessage').style.color = 'red';
         } else if (xhr.responseText == '2') {
-          document.getElementById('statusMessage').value =
-            'Account already exists.';
+          document.getElementById('statusMessage').value = 'Connection failed.';
           document.getElementById('statusMessage').style.color = 'red';
         } else if (xhr.responseText == '3') {
-          document.getElementById('statusMessage').value =
-            'Connection failed.';
-          document.getElementById('statusMessage').style.color = 'red';
+          document.getElementById('statusMessage').value = 'Username is empty.';
+          document.getElementById('statusMessage').style.color = 'yellow';
+        } else if (xhr.responseText == '4') {
+          document.getElementById('statusMessage').value = 'Username is invalid.';
+          document.getElementById('statusMessage').style.color = 'yellow';
+        } else if (xhr.responseText == '5') {
+          document.getElementById('statusMessage').value = 'Username is too long.';
+          document.getElementById('statusMessage').style.color = 'yellow';
+        } else if (xhr.responseText == '6') {
+          document.getElementById('statusMessage').value = 'Password is empty.';
+          document.getElementById('statusMessage').style.color = 'yellow';
+        } else if (xhr.responseText == '7') {
+          document.getElementById('statusMessage').value = 'Password is invalid.';
+          document.getElementById('statusMessage').style.color = 'yellow';
+        } else if (xhr.responseText == '8') {
+          document.getElementById('statusMessage').value = 'Email is empty.';
+          document.getElementById('statusMessage').style.color = 'yellow';
+        } else if (xhr.responseText == '9') {
+          document.getElementById('statusMessage').value = 'Email is invalid.';
+          document.getElementById('statusMessage').style.color = 'yellow';
         } else {
-          document.getElementById('statusMessage').value =
-            'Unknown error occurred.';
+          document.getElementById('statusMessage').value = 'Unknown error occurred.';
           document.getElementById('statusMessage').style.color = 'red';
         }
       } else {
-        document.getElementById('statusMessage').value =
-          'Unknown error occurred.';
+        document.getElementById('statusMessage').value = 'Unknown error occurred.';
         document.getElementById('statusMessage').style.color = 'red';
       }
     }

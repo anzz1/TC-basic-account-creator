@@ -41,7 +41,7 @@
           $stmt->execute($params);
         }
         catch (PDOException $e) {
-          error_log("Error when inserting a new account: " . $e->getMessage());
+          throw $e;
         }
       }
     }
@@ -49,12 +49,17 @@
     // Fetches and returns the next row from the result set.
     public function querySingleRow($query, $params) {
       if ($query) {
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute($params);
+        try {
+          $stmt = $this->conn->prepare($query);
+          $stmt->execute($params);
         
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+          $row = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        return $row;
+          return $row;
+        }
+        catch (PDOException $e) {
+          throw $e;
+        }
       }
       else
         return null;
@@ -63,12 +68,17 @@
     // Returns an array containing all of the result set rows.
     public function queryMultiRow($query, $params) {
       if ($query) {
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute($params);
+        try {
+          $stmt = $this->conn->prepare($query);
+          $stmt->execute($params);
         
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+          $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        return $results;
+          return $results;
+        }
+        catch (PDOException $e) {
+          throw $e;
+        }
       }
       else
         return null;

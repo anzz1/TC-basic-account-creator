@@ -5,28 +5,50 @@
   $db = new db();
   
   if (!$db->isOpen()) {
-    echo "3"; // Connection failed
+    echo "2"; // Connection failed
     return;
   }
   
   // Get POST data and validate.
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = validateInput($_POST['username']);
-    $email = validateInput($_POST['email']);
-    $password = validateInput($_POST['password']);
+    $username = trim($_POST['username']);
+    $email = trim($_POST['email']);
+    $password = $_POST['password'];
   }
   
-  if (!isset($username) || !is_string($username))
-    throw new InvalidArgumentException("Username is invalid or empty.");
+  if (!isset($username) || !is_string($username) || empty($username)) {
+    echo "3"; // Username is empty.
+    return;
+  }
+  $username = validateInput($username);
+  if (!isset($username)) {
+    echo "4"; // Username is invalid.
+    return;
+  }
+  if (strlen($username) > 32) {
+    echo "5"; // Username is too long.
+    return;
+  }
   
-  if (!isset($password) || !is_string($password))
-    throw new InvalidArgumentException("Password is invalid or empty.");
+  if (!isset($password) || !is_string($password) || empty($password)) {
+    echo "6"; // Password is empty.
+    return;
+  }
+  if (strlen($password) > 255) {
+    echo "7"; // Password is invalid.
+    return;
+  }
   
-  if (!isset($email))
-    throw new InvalidArgumentException("Email is empty.");
-  
+  if (!isset($email)) {
+    echo "8"; // Email is empty.
+    return;
+  }
+  if (strlen($email) > 255) {
+    echo "9"; // Email is invalid.
+    return;
+  }
   if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    echo "1"; // Returns that email is invalid, to update status message.
+    echo "9"; // Email is invalid.
     return;
   }
 
@@ -41,7 +63,7 @@
     if ($db->getRowCount($results) > 0) {
       
       // Account already exists, inform user and stop transaction.
-      echo "2";
+      echo "1";
       
       // Close connection to the database.
       $db->close();
@@ -51,7 +73,7 @@
     
     // If no account exists, create a new one.
     
-    // Get the SHA1 encrypted password.
+    // Get the SRP6 salt and verifier tokens
     list($salt, $verifier) = $db->getRegistrationData($username, $password);
     
     $accountCreateQuery = "INSERT INTO account(username, salt, verifier, email) VALUES(?, ?, ?, ?)";
@@ -64,25 +86,25 @@
     $db->close();
     
     // Return successful to AJAX call.
-    echo "0";
+    echo "0"; // Account created successfully!
     
   }
   catch(PDOException $e) {
-    echo "4"; // Update status message with unknown error occurred.
-    error_log("PDO Database error occurred: " . $e->getMessage());
+    echo "-1"; // Unknown error occured.
+    error_log("Database error: " . $e->getMessage());
   }
   catch (Exception $e) {
-    echo "4"; // Update status message with unknown error occurred.
-    error_log("Unknown error occurred: " . $e->getMessage());
+    echo "-1"; // Unknown error occured.
+    error_log("Unknown error: " . $e->getMessage());
   }
   
   // Validates POST input data.
-  function validateInput($param) {
-    $param = trim($param);
-    $param = stripslashes($param);
-    $param = htmlspecialchars($param);
+  function validateInput($param) { 
+    $valid = stripslashes($param);
+    $valid = htmlspecialchars($valid, ENT_QUOTES);
+    $valid = preg_replace('/\s+/', '', $valid);
     
-    return $param;
+    return ($param == $valid) ? $param : null;
   }
 
 ?>
