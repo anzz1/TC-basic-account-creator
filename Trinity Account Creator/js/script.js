@@ -52,7 +52,7 @@ function submitForm() {
           document.getElementById('statusMessage').value = 'Password is empty.';
           document.getElementById('statusMessage').style.color = 'yellow';
         } else if (xhr.responseText == '7') {
-          document.getElementById('statusMessage').value = 'Password is invalid.';
+          document.getElementById('statusMessage').value = 'Password is too long.';
           document.getElementById('statusMessage').style.color = 'yellow';
         } else if (xhr.responseText == '8') {
           document.getElementById('statusMessage').value = 'Email is empty.';

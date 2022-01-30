@@ -2,7 +2,11 @@
 
   // explicitly set charset to utf-8
   ini_set('default_charset', 'utf-8');
-
+  if(ini_get('mbstring.func_overload')) {
+    ini_set('mbstring.func_overload', 0);
+  }
+  mb_internal_encoding("UTF-8");
+  
   require_once(dirname(__FILE__) . '/db.php');
 
   $db = new db();
@@ -28,7 +32,7 @@
     echo "4"; // Username is invalid.
     return;
   }
-  if (strlen($username) > 32) {
+  if (mb_strlen($username, '8bit') > 16) {
     echo "5"; // Username is too long.
     return;
   }
@@ -37,8 +41,9 @@
     echo "6"; // Password is empty.
     return;
   }
-  if (strlen($password) > 255) {
-    echo "7"; // Password is invalid.
+  // password has a 16 character limit on 3.3.5.12340 client even when SRP6 does not have such limitation
+  if (mb_strlen($password, 'UTF-8') > 16) {
+    echo "7"; // Password is too long.
     return;
   }
   
@@ -46,7 +51,7 @@
     echo "8"; // Email is empty.
     return;
   }
-  if (strlen($email) > 255) {
+  if (mb_strlen($email, '8bit') > 255) {
     echo "9"; // Email is invalid.
     return;
   }
