@@ -1,4 +1,7 @@
 <?php
+
+  // explicitly set charset to utf-8
+  ini_set('default_charset', 'utf-8');
   
   class db {
     
@@ -8,7 +11,7 @@
     
     private $host = "localhost";      // IP or hostname of your database server.
     private $port = "3306";           // Port of your database server.
-    private $username = "trinity";    // Database username.
+    private $username = "root";    // Database username.
     private $password = "trinity";    // Database password.
     private $dbname = "auth";         // Database name (i.e. "auth").
     
@@ -20,7 +23,7 @@
       try {
         
         // Establish a new connection to the database.
-        $connection = new PDO("mysql:host=$this->host;port=$this->port;dbname=$this->dbname", $this->username, $this->password,
+        $connection = new PDO("mysql:host=$this->host;port=$this->port;dbname=$this->dbname;charset=utf8", $this->username, $this->password,
         array(
           PDO::ATTR_TIMEOUT => 5, // Timeout is 5 seconds
           PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION // Set PDO error mode to Exception.

@@ -1,5 +1,8 @@
 <?php
 
+  // explicitly set charset to utf-8
+  ini_set('default_charset', 'utf-8');
+
   require_once(dirname(__FILE__) . '/db.php');
 
   $db = new db();
@@ -15,7 +18,7 @@
     $email = trim($_POST['email']);
     $password = $_POST['password'];
   }
-  
+
   if (!isset($username) || !is_string($username) || empty($username)) {
     echo "3"; // Username is empty.
     return;
@@ -52,6 +55,9 @@
     return;
   }
 
+  $username = strtoupper($username);
+  $email = strtoupper($email);
+
   try {
     
     // First, we need to check if the account name already exists.
@@ -76,8 +82,8 @@
     // Get the SRP6 salt and verifier tokens
     list($salt, $verifier) = $db->getRegistrationData($username, $password);
     
-    $accountCreateQuery = "INSERT INTO account(username, salt, verifier, email) VALUES(?, ?, ?, ?)";
-    $accountCreateParams = array($username, $salt, $verifier, $email);
+    $accountCreateQuery = "INSERT INTO account(username, salt, verifier, reg_mail, email) VALUES(?, ?, ?, ?, ?)";
+    $accountCreateParams = array($username, $salt, $verifier, $email, $email);
     
     // Execute the query.
     $db->insertQuery($accountCreateQuery, $accountCreateParams);
