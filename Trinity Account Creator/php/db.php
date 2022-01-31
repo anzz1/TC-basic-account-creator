@@ -2,7 +2,7 @@
 
   // explicitly set charset to utf-8
   ini_set('default_charset', 'utf-8');
-  if(ini_get('mbstring.func_overload') {
+  if(ini_get('mbstring.func_overload')) {
     ini_set('mbstring.func_overload', 0);
   }
   mb_internal_encoding("UTF-8");
