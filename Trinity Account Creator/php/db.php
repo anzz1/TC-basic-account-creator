@@ -8,7 +8,7 @@
     
     private $host = "localhost";      // IP or hostname of your database server.
     private $port = "3306";           // Port of your database server.
-    private $username = "root";    // Database username.
+    private $username = "trinity";    // Database username.
     private $password = "trinity";    // Database password.
     private $dbname = "auth";         // Database name (i.e. "auth").
     
