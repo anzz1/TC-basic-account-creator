@@ -8,7 +8,7 @@
     
     private $host = "localhost";      // IP or hostname of your database server.
     private $port = "3306";           // Port of your database server.
-    private $username = "trinity";    // Database username.
+    private $username = "root";    // Database username.
     private $password = "trinity";    // Database password.
     private $dbname = "auth";         // Database name (i.e. "auth").
     
@@ -140,12 +140,12 @@
     }
 
     public function strtoupper_az($str) {
-    	//return preg_replace_callback('/[a-z]/',function($matches){return strtoupper($matches[0]);},$str);
-    	return preg_replace_callback('/[a-z]/',function($matches){return chr(ord($matches[0])-32);},$str);
+      //return preg_replace_callback('/[a-z]/',function($matches){return strtoupper($matches[0]);},$str);
+      return preg_replace_callback('/[a-z]/',function($matches){return chr(ord($matches[0])-32);},$str);
     }
 
     public function isOpen() {
-    	return ($this->conn != null);
+      return ($this->conn != null);
     }
 
     // Close the database connection.

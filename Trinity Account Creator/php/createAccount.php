@@ -91,7 +91,7 @@
     // Close connection to the database.
     $db->close();
 
-    error_log("Account created: '" . $username . "' '". $email . "'");
+    //error_log("Account created: '" . $username . "' '". $email . "'");
 
     // Return successful to AJAX call.
     echo "0"; // Account created successfully!
