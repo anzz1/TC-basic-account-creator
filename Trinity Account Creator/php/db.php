@@ -1,16 +1,9 @@
 <?php
 
-  // explicitly set charset to utf-8
-  ini_set('default_charset', 'utf-8');
-  if(ini_get('mbstring.func_overload')) {
-    ini_set('mbstring.func_overload', 0);
-  }
-  mb_internal_encoding("UTF-8");
-  
+  require_once(dirname(__FILE__) . '/vars.php');
+
   class db {
-    
-    private $conn;
-    
+
     /* --------------------- ONLY EDIT THE VALUES BELOW THIS LINE --------------------- */
     
     private $host = "localhost";      // IP or hostname of your database server.
@@ -20,26 +13,26 @@
     private $dbname = "auth";         // Database name (i.e. "auth").
     
     /* --------------------- DO NOT EDIT ANYTHING BELOW THIS LINE --------------------- */
-    
+
+    private $conn;
+
     // Create the database connection when this class is instantiated.
     function __construct() {
-      
       try {
-        
         // Establish a new connection to the database.
         $connection = new PDO("mysql:host=$this->host;port=$this->port;dbname=$this->dbname;charset=utf8", $this->username, $this->password,
         array(
           PDO::ATTR_TIMEOUT => 5, // Timeout is 5 seconds
           PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION // Set PDO error mode to Exception.
         ));
-        
+
         $this->conn = $connection;
       }
       catch (PDOException $e) {
         error_log("Connection failed: " . $e->getMessage());
       }
     }
-    
+
     // Executes an INSERT query on the database.
     public function insertQuery($query, $params) {
       if ($query) {
@@ -52,16 +45,16 @@
         }
       }
     }
-    
+
     // Fetches and returns the next row from the result set.
     public function querySingleRow($query, $params) {
       if ($query) {
         try {
           $stmt = $this->conn->prepare($query);
           $stmt->execute($params);
-        
+
           $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
           return $row;
         }
         catch (PDOException $e) {
@@ -71,16 +64,16 @@
       else
         return null;
     }
-    
+
     // Returns an array containing all of the result set rows.
     public function queryMultiRow($query, $params) {
       if ($query) {
         try {
           $stmt = $this->conn->prepare($query);
           $stmt->execute($params);
-        
+
           $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
+
           return $results;
         }
         catch (PDOException $e) {
@@ -90,22 +83,21 @@
       else
         return null;
     }
-    
+
     // Returns the row count from a PDO result set.
     public function getRowCount($results) {
-      
       // We can use the count() function here, because the result set is either
       // an associative or numerical array.
       if ($results) {
         return count($results);
       }
     }
-    
+
     // Returns the last inserted row or sequence.
     public function getLastInsertId() {
       return $this->conn->lastInsertId();
     }
-    
+
     private function calculateSRP6Verifier($username, $password, $salt)
     {
       // algorithm constants
@@ -113,7 +105,7 @@
       $N = gmp_init('894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7', 16);
 
       // calculate first hash
-      $h1 = sha1(strtoupper($username . ':' . $password), TRUE);
+      $h1 = sha1($this->strtoupper_az($username . ':' . $password), TRUE);
 
       // calculate second hash
       $h2 = sha1($salt.$h1, TRUE);
@@ -133,29 +125,33 @@
       // done!
       return $verifier;
     }
-    
+
     // Returns SRP6 parameters to register this username/password combination with
     public function getRegistrationData($username, $password)
     {
       // generate a random salt
       $salt = random_bytes(32);
-      
+
       // calculate verifier using this salt
       $verifier = $this->calculateSRP6Verifier($username, $password, $salt);
 
       // done - this is what you put in the account table!
       return array($salt, $verifier);
     }
-    
+
+    public function strtoupper_az($str) {
+    	//return preg_replace_callback('/[a-z]/',function($matches){return strtoupper($matches[0]);},$str);
+    	return preg_replace_callback('/[a-z]/',function($matches){return chr(ord($matches[0])-32);},$str);
+    }
+
     public function isOpen() {
     	return ($this->conn != null);
     }
-    
+
     // Close the database connection.
     public function close() {
       $this->conn = null;
     }
-    
   }
 
 ?>

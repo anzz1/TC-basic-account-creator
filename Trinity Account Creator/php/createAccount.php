@@ -1,21 +1,15 @@
 <?php
 
-  // explicitly set charset to utf-8
-  ini_set('default_charset', 'utf-8');
-  if(ini_get('mbstring.func_overload')) {
-    ini_set('mbstring.func_overload', 0);
-  }
-  mb_internal_encoding("UTF-8");
-  
+  require_once(dirname(__FILE__) . '/vars.php');
   require_once(dirname(__FILE__) . '/db.php');
 
   $db = new db();
-  
+
   if (!$db->isOpen()) {
     echo "2"; // Connection failed
     return;
   }
-  
+
   // Get POST data and validate.
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = trim($_POST['username']);
@@ -32,26 +26,29 @@
     echo "4"; // Username is invalid.
     return;
   }
-  if (mb_strlen($username, '8bit') > 16) {
+
+  // username has 16 byte limit on TC server
+  if (strlen($username) > 16) {
     echo "5"; // Username is too long.
     return;
   }
-  
+
   if (!isset($password) || !is_string($password) || empty($password)) {
     echo "6"; // Password is empty.
     return;
   }
+
   // password has a 16 character limit on 3.3.5.12340 client even when SRP6 does not have such limitation
-  if (mb_strlen($password, 'UTF-8') > 16) {
+  if (strlen($password) > 64 || iconv_strlen($password, 'utf-8') > 16) {
     echo "7"; // Password is too long.
     return;
   }
-  
+
   if (!isset($email)) {
     echo "8"; // Email is empty.
     return;
   }
-  if (mb_strlen($email, '8bit') > 255) {
+  if (strlen($email) > 255) {
     echo "9"; // Email is invalid.
     return;
   }
@@ -60,19 +57,17 @@
     return;
   }
 
-  $username = strtoupper($username);
-  $email = strtoupper($email);
+  $username = $db->strtoupper_az($username);
+  $email = $db->strtoupper_az($email);
 
   try {
-    
     // First, we need to check if the account name already exists.
     $accountCheckQuery = "SELECT * FROM account WHERE username = ?";
     $accountCheckParams = array($username);
-    
+
     $results = $db->queryMultiRow($accountCheckQuery, $accountCheckParams);
-    
+
     if ($db->getRowCount($results) > 0) {
-      
       // Account already exists, inform user and stop transaction.
       echo "1";
       
@@ -81,24 +76,25 @@
       
       return;
     }
-    
+
     // If no account exists, create a new one.
-    
+
     // Get the SRP6 salt and verifier tokens
     list($salt, $verifier) = $db->getRegistrationData($username, $password);
-    
+
     $accountCreateQuery = "INSERT INTO account(username, salt, verifier, reg_mail, email) VALUES(?, ?, ?, ?, ?)";
     $accountCreateParams = array($username, $salt, $verifier, $email, $email);
-    
+
     // Execute the query.
     $db->insertQuery($accountCreateQuery, $accountCreateParams);
-    
+
     // Close connection to the database.
     $db->close();
-    
+
+    error_log("Account created: '" . $username . "' '". $email . "'");
+
     // Return successful to AJAX call.
     echo "0"; // Account created successfully!
-    
   }
   catch(PDOException $e) {
     echo "-1"; // Unknown error occured.
@@ -108,14 +104,13 @@
     echo "-1"; // Unknown error occured.
     error_log("Unknown error: " . $e->getMessage());
   }
-  
+
   // Validates POST input data.
   function validateInput($param) { 
     $valid = stripslashes($param);
     $valid = htmlspecialchars($valid, ENT_QUOTES);
     $valid = preg_replace('/\s+/', '', $valid);
-    
+
     return ($param == $valid) ? $param : null;
   }
-
 ?>
