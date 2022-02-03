@@ -42,15 +42,38 @@ if (!is_callable('random_bytes')) {
         return ($rand !== false && bytelen($rand) == $b) ? $rand : null;
       }
     }
+  } elseif (class_exists('\\COM')) {
+    try {
+      $util = new COM('CAPICOM.Utilities.1');
+      $method = array($util, 'GetRandom');
+      if (is_callable($method)) {
+        function random_bytes($b) {
+          $util = new \COM('CAPICOM.Utilities.1');
+          $rand = base64_decode($util->GetRandom($b,0));
+          $rand = str_pad($rand, $b, chr(0));
+          return ($rand !== false && bytelen($rand) == $b) ? $rand : null;
+        }
+      }
+    } catch (Exception $e) { }
   }
 
   if (!is_callable('random_bytes')) {
-    function random_bytes($b) {
-      $rand = '';
-      for ($i = 1; $i <= $b; $i++) {
-        $rand .= chr(rand(0,255));
+    if (is_callable('mt_rand')) {
+      function random_bytes($b) {
+        $rand = '';
+        for ($i = 1; $i <= $b; $i++) {
+          $rand .= chr(mt_rand(0,255));
+        }
+        return ($rand !== false && bytelen($rand) == $b) ? $rand : null;
       }
-      return ($rand !== false && bytelen($rand) == $b) ? $rand : null;
+    } else {
+      function random_bytes($b) {
+        $rand = '';
+        for ($i = 1; $i <= $b; $i++) {
+          $rand .= chr(rand(0,255));
+        }
+        return ($rand !== false && bytelen($rand) == $b) ? $rand : null;
+      }
     }
   }
 }
