@@ -1,5 +1,24 @@
 <?php
 
+  function load_lib($n) {
+    return extension_loaded($n) or (function_exists('dl') and dl(((PHP_SHLIB_SUFFIX === 'dll') ? 'php_' : '').$n.'.'.PHP_SHLIB_SUFFIX) or false);
+  }
+
+  if (version_compare(PHP_VERSION, "5", "<")) {
+    error_log("Your PHP version is too old, at least version 5.0.0 is required.");
+    die("Error.");
+  }
+
+  if (!load_lib('gmp')) {
+    error_log("Error: Missing PHP module 'gmp'");
+    die("Error.");
+  }
+
+  if (!load_lib('pdo_mysql')) {
+    error_log("Error: Missing PHP module 'pdo_mysql'");
+    die("Error.");
+  }
+
   // explicitly set charset to utf-8
   ini_set('default_charset', 'utf-8');
   ini_set('input_encoding', 'utf-8');

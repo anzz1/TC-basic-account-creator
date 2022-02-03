@@ -3,7 +3,14 @@
   require_once(dirname(__FILE__) . '/vars.php');
   require_once(dirname(__FILE__) . '/db.php');
 
-  $db = new db();
+  if (class_exists('db')) {
+    $db = new db();
+  }
+  else {
+    echo "-1"; // Unknown error occured.
+    error_log("Error: Class db() could not be initialized.");
+    return;
+  }
 
   if (!$db->isOpen()) {
     echo "2"; // Connection failed

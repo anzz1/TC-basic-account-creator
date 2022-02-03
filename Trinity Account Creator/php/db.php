@@ -1,6 +1,7 @@
 <?php
 
   require_once(dirname(__FILE__) . '/vars.php');
+  require_once(dirname(__FILE__) . '/compat_random.php');
 
   class db {
 
@@ -20,11 +21,17 @@
     function __construct() {
       try {
         // Establish a new connection to the database.
-        $connection = new PDO("mysql:host=$this->host;port=$this->port;dbname=$this->dbname;charset=utf8", $this->username, $this->password,
-        array(
+        $options = array(
           PDO::ATTR_TIMEOUT => 5, // Timeout is 5 seconds
           PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION // Set PDO error mode to Exception.
-        ));
+        );
+        if (version_compare(PHP_VERSION, "5.3.6", "<")) {
+          $connection = new PDO("mysql:host=$this->host;port=$this->port;dbname=$this->dbname", $this->username, $this->password, $options);
+          $connection->exec('SET NAMES utf8');
+        }
+        else {
+          $connection = new PDO("mysql:host=$this->host;port=$this->port;dbname=$this->dbname;charset=utf8", $this->username, $this->password, $options);
+        }
 
         $this->conn = $connection;
       }
