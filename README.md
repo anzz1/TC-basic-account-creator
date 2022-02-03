@@ -2,6 +2,9 @@
 Projects created for use with the TrinityCore World of Warcraft emulator: https://www.trinitycore.org/
 
 # Requirements
+
+#### PHP Version >= 5.0.0
+
 [gmp](https://www.php.net/manual/en/book.gmp.php) module is required to be enabled in PHP.  
  * On Linux do `sudo apt install php-gmp`  
  * On Windows you should have `php_gmp.dll` in your extensions folder of your PHP installation  
