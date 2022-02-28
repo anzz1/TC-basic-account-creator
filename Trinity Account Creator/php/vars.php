@@ -46,7 +46,7 @@
     ini_set('iconv.input_encoding', '');
   }
   if(ini_get('iconv.output_encoding')) {
-    ini_set('iconv.input_encoding', '');
+    ini_set('iconv.output_encoding', '');
   }
   if(ini_get('iconv.internal_encoding')) {
     ini_set('iconv.internal_encoding', '');
