@@ -9,15 +9,7 @@ function bytelen($str) {
 }
 
 if (!is_callable('random_bytes')) {
-  if (is_callable('gmp_random_bits')) {
-    function random_bytes($b) {
-      $rand = '';
-      for ($i = 1; $i <= $b; $i++) {
-        $rand .= chr(gmp_intval(gmp_random_bits(8)));
-      }
-      return ($rand !== false && bytelen($rand) == $b) ? $rand : null;
-    }
-  } else if (is_callable('openssl_random_pseudo_bytes')) {
+  if (is_callable('openssl_random_pseudo_bytes')) {
     function random_bytes($b) {
       $rand = openssl_random_pseudo_bytes($b);
       return ($rand !== false && bytelen($rand) == $b) ? $rand : null;
@@ -42,7 +34,7 @@ if (!is_callable('random_bytes')) {
         return ($rand !== false && bytelen($rand) == $b) ? $rand : null;
       }
     }
-  } elseif (class_exists('\\COM')) {
+  } else if (class_exists('\\COM')) {
     try {
       $util = new COM('CAPICOM.Utilities.1');
       $method = array($util, 'GetRandom');
@@ -50,7 +42,7 @@ if (!is_callable('random_bytes')) {
         function random_bytes($b) {
           $util = new \COM('CAPICOM.Utilities.1');
           $rand = base64_decode($util->GetRandom($b,0));
-          $rand = str_pad($rand, $b, chr(0));
+          $rand = ($rand !== false) ? str_pad($rand, $b, chr(0)) : false;
           return ($rand !== false && bytelen($rand) == $b) ? $rand : null;
         }
       }
@@ -58,7 +50,15 @@ if (!is_callable('random_bytes')) {
   }
 
   if (!is_callable('random_bytes')) {
-    if (is_callable('mt_rand')) {
+    if (is_callable('gmp_random_bits')) {
+      function random_bytes($b) {
+        $rand = '';
+        for ($i = 1; $i <= $b; $i++) {
+          $rand .= chr(gmp_intval(gmp_random_bits(8)));
+        }
+        return ($rand !== false && bytelen($rand) == $b) ? $rand : null;
+      }
+    } else if (is_callable('mt_rand')) {
       function random_bytes($b) {
         $rand = '';
         for ($i = 1; $i <= $b; $i++) {
@@ -75,6 +75,24 @@ if (!is_callable('random_bytes')) {
         return ($rand !== false && bytelen($rand) == $b) ? $rand : null;
       }
     }
+  }
+}
+
+if (!is_callable('random_int')) {
+  if (is_callable('gmp_random_range')) {
+      function random_int($min, $max) {
+        return gmp_intval(gmp_random_range($min, $max));
+      }
+  } elseif (is_callable('mt_rand')) {
+      function random_int($min, $max) {
+        mt_srand(random_bytes(3));
+        return mt_rand($min, $max);
+      }
+  } elseif (is_callable('rand')) {
+      function random_int($min, $max) {
+        srand(random_bytes(3));
+        return rand($min, $max);
+      }
   }
 }
 
